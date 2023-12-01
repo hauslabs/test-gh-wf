@@ -1,0 +1,33 @@
+name: Staging and Production from Main
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: {}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Building app"
+  deploy-stg:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs:
+      - build
+    environment:
+      name: staging
+    steps:
+      - run: echo "Deploying to staging"
+  deploy-prd:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs:
+    - build
+    - deploy-stg
+    environment:
+      name: production
+    steps:
+      - run: echo "Deploying to production"
